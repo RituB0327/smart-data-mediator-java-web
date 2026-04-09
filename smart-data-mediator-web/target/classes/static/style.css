@@ -1,0 +1,107 @@
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body{
+background:#1f2029;
+color:white;
+display:flex;
+min-height:100vh;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+width:230px;
+background:#2b2d3a;
+border-right:2px solid #00c3ff;
+box-shadow:0 0 20px #00c3ff;
+padding-top:30px;
+}
+
+.sidebar h2{
+text-align:center;
+margin-bottom:30px;
+color:#00c3ff;
+}
+
+.sidebar a{
+display:block;
+padding:15px 20px;
+color:white;
+text-decoration:none;
+transition:0.3s;
+}
+
+.sidebar a:hover{
+background:#00c3ff;
+color:black;
+}
+
+/* MAIN AREA */
+
+.main{
+flex:1;
+padding:30px;
+}
+
+/* CARD */
+
+.card{
+background:#2b2d3a;
+border:1px solid #00c3ff;
+box-shadow:0 0 10px #00c3ff;
+border-radius:8px;
+padding:25px;
+margin-bottom:25px;
+}
+
+/* INPUT */
+
+input,textarea,select{
+width:100%;
+padding:10px;
+margin-top:10px;
+margin-bottom:15px;
+background:#1f2029;
+border:1px solid #00c3ff;
+color:white;
+border-radius:5px;
+}
+
+/* BUTTON */
+
+button{
+padding:10px 20px;
+background:linear-gradient(90deg,#0081ab,#00c3ff);
+border:none;
+border-radius:30px;
+color:white;
+cursor:pointer;
+font-weight:600;
+}
+
+button:hover{
+box-shadow:0 0 10px #00c3ff;
+}
+
+/* TABLE */
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:15px;
+}
+
+th,td{
+border:1px solid #00c3ff;
+padding:10px;
+}
+
+th{
+background:#00c3ff;
+color:black;
+}

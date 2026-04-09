@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>SDM Dashboard</title>
+
+<link rel="stylesheet" href="/css/style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+.cards{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:20px;
+margin-top:20px;
+}
+
+.stat-card{
+background:#2b2d3a;
+border:1px solid #00c3ff;
+box-shadow:0 0 10px #00c3ff;
+border-radius:10px;
+padding:25px;
+text-align:center;
+}
+
+.stat-card h3{
+color:#00c3ff;
+}
+
+.stat-card p{
+font-size:28px;
+font-weight:bold;
+margin-top:10px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+margin-top:30px;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div class="sidebar">
+
+<h2>SDM System</h2>
+
+<a href="dashboard.html">Dashboard</a>
+<a href="query.html">Query</a>
+<a href="manage.html">Manage Data</a>
+<a href="history.html">Query History</a>
+
+<hr>
+
+<a href="/logout">Logout</a>
+
+</div>
+
+
+<div class="main">
+
+<div class="card">
+
+<h2>Analytics Dashboard</h2>
+
+<p>Smart Data Mediator Overview</p>
+
+</div>
+
+
+<!-- STAT CARDS -->
+
+<div class="cards">
+
+<div class="stat-card">
+<h3>Total Employees</h3>
+<p id="employees">0</p>
+</div>
+
+<div class="stat-card">
+<h3>Total Projects</h3>
+<p id="projects">0</p>
+</div>
+
+<div class="stat-card">
+<h3>Average Salary</h3>
+<p id="salary">0</p>
+</div>
+
+<div class="stat-card">
+<h3>Total Departments</h3>
+<p id="departments">0</p>
+</div>
+
+</div>
+
+
+<!-- NEW SECTION BELOW -->
+
+<div class="grid">
+
+<div class="card">
+
+<h3>Employees per Department</h3>
+
+<canvas id="deptChart"></canvas>
+
+</div>
+
+
+<div class="card">
+
+<h3>Recent Queries</h3>
+
+<table id="queryTable">
+
+<thead>
+
+<tr>
+<th>Query</th>
+<th>Operation</th>
+<th>Date</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<script>
+
+let chart;
+
+window.onload = function () {
+    loadDashboard();
+    loadQueryHistory();
+};
+
+
+/* ---------------- DASHBOARD STATS ---------------- */
+
+function loadDashboard() {
+
+    fetch("/api/dashboard")
+        .then(res => res.json())
+        .then(data => {
+
+            document.getElementById("employees").innerText = data.employees;
+            document.getElementById("projects").innerText = data.projects;
+            document.getElementById("salary").innerText = data.averageSalary;
+            document.getElementById("departments").innerText = data.departments;
+
+            createDeptChart(data.departmentChart);
+        });
+}
+
+
+/* ---------------- SMART CHART (UPDATED) ---------------- */
+
+function createDeptChart(data, type = "bar") {
+
+    let labels = data.map(d => d.label);
+    let values = data.map(d => d.value);
+
+    if (chart) {
+        chart.destroy();
+    }
+
+    chart = new Chart(document.getElementById("deptChart"), {
+
+        type: type,   // 🔥 dynamic chart type
+
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Smart Data",
+                data: values
+            }]
+        }
+    });
+}
+
+
+/* ---------------- NLP QUERY CHART ---------------- */
+
+function runSmartQuery(queryText) {
+
+    fetch("/api/analyze?query=" + encodeURIComponent(queryText))
+        .then(res => res.json())
+        .then(data => {
+
+            // 🔥 use backend data + chart type
+            createDeptChart(data.data, data.chartType);
+
+        });
+}
+
+
+/* ---------------- QUERY HISTORY ---------------- */
+
+function loadQueryHistory() {
+
+    fetch("/api/history")
+        .then(res => res.json())
+        .then(data => {
+
+            let table = document.querySelector("#queryTable tbody");
+            table.innerHTML = "";
+
+            data.forEach(q => {
+
+                table.innerHTML +=
+                    "<tr onclick='runSmartQuery(\"" + q.queryText + "\")'>" +   // 🔥 clickable row
+                    "<td>" + q.queryText + "</td>" +
+                    "<td>" + q.operation + "</td>" +
+                    "<td>" + q.createdAt + "</td>" +
+                    "</tr>";
+            });
+        });
+}
+
+</script>
+</body>
+
+</html>

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Query Data</title>
+
+<link rel="stylesheet" href="/css/style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+
+<body>
+
+<div class="sidebar">
+
+<h2>SDM System</h2>
+
+<a href="dashboard.html">Dashboard</a>
+<a href="query.html">Query</a>
+<a href="manage.html">Manage Data</a>
+<a href="history.html">Query History</a>
+
+</div>
+
+
+
+<div class="main">
+
+<!-- RUN QUERY -->
+
+<div class="card">
+
+<h2>Run Query</h2>
+
+<select id="database"></select>
+
+<textarea id="query" placeholder="Ask your data"></textarea>
+
+<button onclick="runQuery()">Run Query</button>
+
+<p id="loading" style="display:none;color:#00c3ff;">Running Query...</p>
+
+</div>
+
+
+
+<!-- CHART TYPE -->
+
+<div class="card">
+
+<h3>Chart Type</h3>
+
+<select id="chartType">
+
+<option value="bar">Bar Chart</option>
+<option value="line">Line Chart</option>
+<option value="pie">Pie Chart</option>
+
+</select>
+
+</div>
+
+
+
+<!-- QUERY RESULT -->
+
+<div class="card">
+
+<h3>Query Result</h3>
+
+<table id="resultTable">
+
+<thead>
+<tr>
+<th>Label</th>
+<th>Value</th>
+</tr>
+</thead>
+
+<tbody></tbody>
+
+</table>
+
+</div>
+
+
+
+<!-- CHART -->
+
+<div class="card">
+
+<h3>Chart</h3>
+
+<canvas id="chart"></canvas>
+
+</div>
+
+
+</div>
+
+
+
+<script>
+
+let chart;
+
+
+// LOAD DATABASE TABLES
+
+window.onload=function(){
+
+loadTables();
+
+}
+
+
+function loadTables(){
+
+fetch("/api/tables")
+
+.then(res=>res.json())
+
+.then(data=>{
+
+let dropdown=document.getElementById("database");
+
+dropdown.innerHTML="";
+
+data.forEach(table=>{
+
+let option=document.createElement("option");
+
+option.value=table;
+
+option.text=table;
+
+dropdown.appendChild(option);
+
+});
+
+})
+
+.catch(error=>{
+
+console.log("Error loading tables:",error);
+
+});
+
+}
+
+
+
+// RUN QUERY
+
+function runQuery(){
+
+let query=document.getElementById("query").value;
+let table=document.getElementById("database").value;
+
+document.getElementById("loading").style.display="block";
+
+
+fetch("/api/analyze?query="+encodeURIComponent(query)+"&table="+table)
+
+.then(res=>res.json())
+
+.then(data=>{
+
+document.getElementById("loading").style.display="none";
+
+createTable(data.data);
+
+createChart(data.data);
+
+})
+
+.catch(error=>{
+
+alert("Query Failed");
+
+});
+
+}
+
+
+
+// CREATE RESULT TABLE
+
+function createTable(data){
+
+let body=document.querySelector("#resultTable tbody");
+
+body.innerHTML="";
+
+data.forEach(row=>{
+
+body.innerHTML+=
+
+"<tr>"+
+
+"<td>"+row.label+"</td>"+
+
+"<td>"+row.value+"</td>"+
+
+"</tr>";
+
+});
+
+}
+
+
+
+// CREATE CHART
+
+function createChart(data){
+
+let type=document.getElementById("chartType").value;
+
+let labels=data.map(d=>d.label);
+
+let values=data.map(d=>d.value);
+
+
+if(chart){
+
+chart.destroy();
+
+}
+
+
+chart=new Chart(document.getElementById("chart"),{
+
+type:type,
+
+data:{
+
+labels:labels,
+
+datasets:[{
+
+label:"Result",
+
+data:values
+
+}]
+
+}
+
+});
+
+}
+
+</script>
+
+
+</body>
+
+</html>

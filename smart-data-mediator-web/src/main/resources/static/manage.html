@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Database</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="sidebar">
+    <h2>SDM System</h2>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="query.html">Query</a>
+    <a href="manage.html">Manage Data</a>
+    <a href="history.html">Query History</a>
+</div>
+
+<div class="main">
+    <div class="card">
+        <h2>Manage Database</h2>
+
+        <select id="table">
+            <option value="">Select Table</option>
+        </select>
+
+        <select id="action">
+            <option value="add">Add</option>
+            <option value="update">Update</option>
+            <option value="delete">Delete</option>
+        </select>
+
+        <input type="text" id="name" placeholder="Name">
+        <input type="text" id="email" placeholder="Email">
+        <input type="number" id="salary" placeholder="Salary">
+
+        <button onclick="submitData()">Submit</button>
+    </div>
+</div>
+
+<script>
+window.onload = function() {
+    loadTables();
+}
+
+function loadTables() {
+    fetch("/api/tables")
+    .then(res => res.json())
+    .then(data => {
+        let dropdown = document.getElementById("table");
+        dropdown.innerHTML = '<option value="">Select Table</option>';
+        data.forEach(table => {
+            let option = document.createElement("option");
+            option.value = table;
+            option.text = table;
+            dropdown.appendChild(option);
+        });
+    })
+    .catch(err => console.error("Error loading tables:", err));
+}
+
+function submitData() {
+    let table = document.getElementById("table").value;
+    let action = document.getElementById("action").value;
+    let name = document.getElementById("name").value;
+    let email = document.getElementById("email").value;
+    let salary = document.getElementById("salary").value;
+
+    if (!table) {
+        alert("Please select a table first");
+        return;
+    }
+
+    fetch("/manage", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            database: table,
+            action: action,
+            name: name,
+            email: email,
+            salary: salary
+        })
+    })
+    .then(res => res.text())
+    .then(msg => {
+        alert(msg);
+    })
+    .catch(err => {
+        console.error("Fetch error:", err);
+        alert("Failed to connect to server.");
+    });
+}
+</script>
+
+</body>
+</html>
